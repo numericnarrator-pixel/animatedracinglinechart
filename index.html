@@ -392,14 +392,14 @@ var rafId=null, t0=null, durationMs=60000, lastProgress=0;
 var fpsCap=60, minFrameMs=1000/60, lastTsForFps=0;
 
 var PALETTE=['#5ad7ff','#ff7ad6','#ffd166','#06d6a0','#a78bfa','#ef8354','#43aa8b','#f94144','#90be6d','#f3722c','#277da1','#f9c74f'];
-function niceNumber(v){ var n=Number(String(v).replace(/[, a0\s]/g,'')); return isFinite(n)?n:NaN; }
+function niceNumber(v){ var n=Number(String(v).replace(/[,\s]/g,'')); return isFinite(n)?n:NaN; }
 function parseTime(v){
   if(v instanceof Date && !isNaN(v)) return v.getTime();
   var s=(v===undefined||v===null)?'':String(v).trim(); if(!s) return null;
   if(/^\d{4}$/.test(s)) return new Date(+s,0,1).getTime();
   var d=new Date(s); if(!isNaN(d)) return d.getTime();
-  var m=s.match(/^()[\-\/](\d{1,2})$/); if(m) return new Date(+m[1], +m[2]-1, 1).getTime();
-  m=s.match(/^(,2)[\-\/](\d{4})$/); if(m) return new Date(+m[2], +m[1]-1, 1).getTime();
+  var m=s.match(/^(\d{4})[\-\/](\d{1,2})$/); if(m) return new Date(+m[1], +m[2]-1, 1).getTime();
+  m=s.match(/^(\d{1,2})[\-\/](\d{4})$/); if(m) return new Date(+m[2], +m[1]-1, 1).getTime();
   return null;
 }
 function autoRange(arr, pad){ pad=(typeof pad==='number')?pad:0.10; var v=arr.filter(isFinite); if(!v.length) return [0,1];
