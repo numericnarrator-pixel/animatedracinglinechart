@@ -396,10 +396,26 @@ function niceNumber(v){ var n=Number(String(v).replace(/[,\s]/g,'')); return isF
 function parseTime(v){
   if(v instanceof Date && !isNaN(v)) return v.getTime();
   var s=(v===undefined||v===null)?'':String(v).trim(); if(!s) return null;
+  // US: MM/DD/YYYY or MM-DD-YYYY
+  var us = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if(us) return new Date(+us[3], +us[1]-1, +us[2]).getTime();
+  // ISO: YYYY-MM-DD
+  var iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(iso) return new Date(+iso[1], +iso[2]-1, +iso[3]).getTime();
+  // European: DD/MM/YYYY or DD-MM-YYYY (if day > 12)
+  var eu = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if(eu && +eu[2] <= 12 && +eu[1] > 12) return new Date(+eu[3], +eu[2]-1, +eu[1]).getTime();
+  // Named month formats: 1 January 2012, January 1, 2012, etc.
+  var namedMonth = s.match(/^(\d{1,2})[ ]([A-Za-z]+)[ ](\d{4})$/) || s.match(/^([A-Za-z]+)[ ](\d{1,2}),?[ ](\d{4})$/);
+  if(namedMonth) {
+    var date = new Date(s);
+    if(!isNaN(date)) return date.getTime();
+  }
+  // Year only
   if(/^\d{4}$/.test(s)) return new Date(+s,0,1).getTime();
-  var d=new Date(s); if(!isNaN(d)) return d.getTime();
-  var m=s.match(/^(\d{4})[\-\/](\d{1,2})$/); if(m) return new Date(+m[1], +m[2]-1, 1).getTime();
-  m=s.match(/^(\d{1,2})[\-\/](\d{4})$/); if(m) return new Date(+m[2], +m[1]-1, 1).getTime();
+  // Fallback: try Date constructor only if unambiguous
+  var d=new Date(s);
+  if(!isNaN(d)) return d.getTime();
   return null;
 }
 function autoRange(arr, pad){ pad=(typeof pad==='number')?pad:0.10; var v=arr.filter(isFinite); if(!v.length) return [0,1];
