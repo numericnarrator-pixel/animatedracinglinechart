@@ -871,31 +871,6 @@ qs('#loadCsv').onclick = loadSelectedAndRender;
 applyTheme('dark');
 window.addEventListener('resize', function(){ try{ Plotly.Plots.resize('chart'); }catch(e){} renderToProgress(lastProgress); });
 </script>
-  <script>
-(function () {
-  function sendHeight() {
-    var h = Math.max(
-      document.documentElement.scrollHeight,
-      document.body.scrollHeight,
-      document.documentElement.offsetHeight,
-      document.body.offsetHeight,
-      document.documentElement.clientHeight
-    );
-    parent.postMessage({ type: 'embedHeight', height: h }, '*');
-  }
-  // On load and layout changes
-  window.addEventListener('load', sendHeight);
-  var ro = new ResizeObserver(sendHeight);
-  ro.observe(document.body);
-  // Throttle on resize/orientation
-  var t;
-  window.addEventListener('resize', function () {
-    clearTimeout(t);
-    t = setTimeout(sendHeight, 120);
-  });
-  // Optional: re-emit after fonts/images async load
-  document.addEventListener('readystatechange', function(){ if (document.readyState === 'complete') sendHeight(); });
-})();
-</script>
+  
 </body>
 </html>
