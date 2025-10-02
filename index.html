@@ -396,10 +396,17 @@ function niceNumber(v){ var n=Number(String(v).replace(/[,\s]/g,'')); return isF
 function parseTime(v){
   if(v instanceof Date && !isNaN(v)) return v.getTime();
   var s=(v===undefined||v===null)?'':String(v).trim(); if(!s) return null;
+  // ISO: YYYY-MM-DD
+  var iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(iso) return new Date(+iso[1], +iso[2]-1, +iso[3]).getTime();
+  // US: MM/DD/YYYY or MM-DD-YYYY
+  var us = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if(us) return new Date(+us[3], +us[1]-1, +us[2]).getTime();
+  // Year only
   if(/^\d{4}$/.test(s)) return new Date(+s,0,1).getTime();
-  var d=new Date(s); if(!isNaN(d)) return d.getTime();
-  var m=s.match(/^(\d{4})[\-\/](\d{1,2})$/); if(m) return new Date(+m[1], +m[2]-1, 1).getTime();
-  m=s.match(/^(\d{1,2})[\-\/](\d{4})$/); if(m) return new Date(+m[2], +m[1]-1, 1).getTime();
+  // Fallback: try Date constructor only if unambiguous (e.g. Jan 1, 2020)
+  var d=new Date(s);
+  if(!isNaN(d) && /^[A-Za-z]{3,}/.test(s)) return d.getTime();
   return null;
 }
 function autoRange(arr, pad){ pad=(typeof pad==='number')?pad:0.10; var v=arr.filter(isFinite); if(!v.length) return [0,1];
