@@ -396,12 +396,15 @@ function niceNumber(v){ var n=Number(String(v).replace(/[,\s]/g,'')); return isF
 function parseTime(v){
   if(v instanceof Date && !isNaN(v)) return v.getTime();
   var s=(v===undefined||v===null)?'':String(v).trim(); if(!s) return null;
-  // ISO: YYYY-MM-DD
-  var iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if(iso) return new Date(+iso[1], +iso[2]-1, +iso[3]).getTime();
   // US: MM/DD/YYYY or MM-DD-YYYY
   var us = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
   if(us) return new Date(+us[3], +us[1]-1, +us[2]).getTime();
+  // ISO: YYYY-MM-DD
+  var iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(iso) return new Date(+iso[1], +iso[2]-1, +iso[3]).getTime();
+  // European: DD/MM/YYYY or DD-MM-YYYY (if day > 12)
+  var eu = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if(eu && +eu[2] <= 12 && +eu[1] > 12) return new Date(+eu[3], +eu[2]-1, +eu[1]).getTime();
   // Year only
   if(/^\d{4}$/.test(s)) return new Date(+s,0,1).getTime();
   // Fallback: try Date constructor only if unambiguous (e.g. Jan 1, 2020)
